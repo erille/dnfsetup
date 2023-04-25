@@ -1,0 +1,27 @@
+---
+  - name: Setup dnf automatic security update on Rocky Linux 8
+    hosts: all
+    become: yes
+    become_user: root
+    tasks:
+      - name: Install dnf-automatic
+        dnf: 
+          name: dnf-automatic
+          state: present
+      - name: Change dnf-automatic configuration
+        lineinfile:
+          line: "{{ item.line }}"
+          regexp: "{{ item.regexp }}"
+          path: /etc/dnf/automatic.conf
+          backup: true
+        loop:
+          - line: upgrade_type = security
+            regexp: ^upgrade_type
+          - line: apply_updates = yes
+            regexp: ^apply_updates
+          - line: system_name = {{ ansible_hostname }}
+            regexp: ^# system_name
+          - line: email_from = {{ ansible_hostname }}@keplercheuvreux.com
+            regexp: ^email_from
+          - line: email_to = it-admin@keplercheuvreux.com
+            regexp: ^email_to
